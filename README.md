@@ -1,3 +1,3 @@
 # Final Project Data Visualisasi
-Nama : Devilia Dwi Candra
+Nama : Devilia Dwi Candra   
 NPM : 21082010098
