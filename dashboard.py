@@ -17,10 +17,10 @@ from sqlalchemy import create_engine
 #     return connection
 
 # Konfigurasi koneksi untuk SQLAlchemy
-# db_username = 'davis2024irwan'
-# db_password = 'wh451n9m@ch1n3'
-# db_host = 'kubela.id'
-# db_name = 'aw'
+db_username = 'davis2024irwan'
+db_password = 'wh451n9m@ch1n3'
+db_host = 'kubela.id'
+db_name = 'aw'
 
 # def create_connection():
 #     connection = mysql.connector.connect(
@@ -33,10 +33,10 @@ from sqlalchemy import create_engine
 #     return connection
 
 # Konfigurasi koneksi untuk SQLAlchemy
-db_username = 'root'
-db_password = ''
-db_host = 'localhost'
-db_name = 'dw_aw'
+# db_username = 'root'
+# db_password = ''
+# db_host = 'localhost'
+# db_name = 'dw_aw'
 
 # Membuat URL koneksi menggunakan SQLAlchemy
 connection_string = f'mysql+mysqlconnector://{db_username}:{db_password}@{db_host}/{db_name}'
