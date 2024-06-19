@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import altair as alt
+import seaborn as sns
+import matplotlib.pyplot as plt
 from collections import defaultdict
 from sqlalchemy import create_engine
 from urllib.parse import quote_plus
@@ -360,7 +362,6 @@ if db_choice == "Database AW":
     st.altair_chart(histogram, use_container_width=True)
 
 
-
 # DATABASE IMDB
 elif db_choice == "Database Scraping IMDb":
     st.markdown(f"""
@@ -371,8 +372,7 @@ elif db_choice == "Database Scraping IMDb":
 
     data_imdb = pd.read_csv('imdb_mostpopular_clean.csv')
     
-    # COMPARISON
-    # Comparison between Gross_US and Gross_World by Open_Week_Date 
+    # Comparison of Budget, Gross_US and Gross_World by Open_Week_Date 
     data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
     data_imdb = data_imdb.sort_values('Open_Week_Date')
     st.subheader('Comparison of Gross US and Gross World over Time')
@@ -381,13 +381,45 @@ elif db_choice == "Database Scraping IMDb":
         y=alt.Y('value:Q', title='Gross (in millions)'),
         color='variable:N'
     ).transform_fold(
-        ['Gross_US', 'Gross_World'],
+        ['Budget', 'Gross_US', 'Gross_World'],
         as_=['variable', 'value']
     ).properties(
         width=700,
         height=400
     ).interactive()
     st.altair_chart(chart_gross, use_container_width=True)
+
+    # Relationship between Budget and Gross World
+    st.subheader('Relationship between Budget and Gross World')
+    scatter_plot = alt.Chart(data_imdb).mark_circle().encode(
+        x='Budget',
+        y='Gross_World',
+        tooltip=['Budget', 'Gross_World']
+    ).properties(
+        width=680,
+        height=560
+    )
+    st.altair_chart(scatter_plot)
+
+    # Distribution opening week gross by opening date
+    st.subheader("Distribution of Opening Week Gross by Open Week Date")
+    data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
+    data_imdb = data_imdb.sort_values('Open_Week_Date')
+    st.bar_chart(data_imdb.set_index('Open_Week_Date')['Opening_Week'])
+
+    # Aspect Ratio Composition of Most Popular IMDb Films
+    st.subheader('Aspect Ratio Composition of Most Popular IMDb Films')
+    aspect_ratio_counts = data_imdb['Aspect_Ratio'].value_counts().reset_index()
+    aspect_ratio_counts.columns = ['Aspect Ratio', 'Count']
+    fig = px.pie(aspect_ratio_counts, values='Count', names='Aspect Ratio')
+    st.plotly_chart(fig)
+
+    # DISTRIBUTION
+    # Distribution most popular IMDB movie by runtime
+    st.subheader('Distribution of IMDb\'s Most Popular Movie Runtime')
+    fig = px.histogram(data_imdb, x='Runtime', nbins=20)
+    fig.update_layout(xaxis_title='Runtime (Minutes)', yaxis_title='Frequency')
+    st.plotly_chart(fig)
 
     # Comparison sound mix
     def count_sound_mix(data):
@@ -401,38 +433,6 @@ elif db_choice == "Database Scraping IMDb":
     sound_mix_counts = count_sound_mix(data_imdb)
     st.subheader('Number of Films Based on Sound Mix Type')
     st.bar_chart(pd.Series(sound_mix_counts))
-
-    # RELATIONSHIP
-    st.subheader('Relationship between Budget and Gross World')
-    scatter_plot = alt.Chart(data_imdb).mark_circle().encode(
-        x='Budget',
-        y='Gross_World',
-        tooltip=['Budget', 'Gross_World']
-    ).properties(
-        width=680,
-        height=560
-    )
-    st.altair_chart(scatter_plot)
-
-    # COMPOSITION
-    st.subheader('Aspect Ratio Composition of Most Popular IMDb Films')
-    aspect_ratio_counts = data_imdb['Aspect_Ratio'].value_counts().reset_index()
-    aspect_ratio_counts.columns = ['Aspect Ratio', 'Count']
-    fig = px.pie(aspect_ratio_counts, values='Count', names='Aspect Ratio')
-    st.plotly_chart(fig)
-
-    # DISTRIBUTION
-    # Distribution most popular movie by runtime
-    st.subheader('Distribution of IMDb\'s Most Popular Movie Runtime')
-    fig = px.histogram(data_imdb, x='Runtime', nbins=20)
-    fig.update_layout(xaxis_title='Runtime (Minutes)', yaxis_title='Frequency')
-    st.plotly_chart(fig)
-
-    # Distribution opening week gross by opening date
-    st.subheader("Opening Week Gross by Open_Week_Date")
-    data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
-    data_imdb = data_imdb.sort_values('Open_Week_Date')
-    st.bar_chart(data_imdb.set_index('Open_Week_Date')['Opening_Week'])
 
 
 st.caption('© Devilia Dwi Candra - 21082010098')
