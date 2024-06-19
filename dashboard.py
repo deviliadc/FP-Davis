@@ -1,10 +1,10 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import altair as alt
 from collections import defaultdict
 from sqlalchemy import create_engine
+from urllib.parse import quote_plus
 
 # def create_connection():
 #     connection = mysql.connector.connect(
@@ -21,6 +21,8 @@ db_username = 'davis2024irwan'
 db_password = 'wh451n9m@ch1n3'
 db_host = 'kubela.id'
 db_name = 'aw'
+
+encoded_password = quote_plus(db_password)
 
 # def create_connection():
 #     connection = mysql.connector.connect(
@@ -39,7 +41,7 @@ db_name = 'aw'
 # db_name = 'dw_aw'
 
 # Membuat URL koneksi menggunakan SQLAlchemy
-connection_string = f'mysql+mysqlconnector://{db_username}:{db_password}@{db_host}/{db_name}'
+connection_string = f'mysql+mysqlconnector://{db_username}:{encoded_password}@{db_host}/{db_name}'
 engine = create_engine(connection_string)
 
 # Sidebar
@@ -101,17 +103,17 @@ if db_choice == "Database AW":
         t.CalendarYear AS Years, 
         COUNT(sf.OrderQuantity) AS 'Order Count'
     FROM  
-        dw_aw.factinternetsales sf
+        factinternetsales sf
     JOIN 
-        dw_aw.dimtime t ON sf.OrderDateKey = t.TimeKey
+        dimtime t ON sf.OrderDateKey = t.TimeKey
     GROUP BY 
         t.CalendarYear
     ORDER BY 
         t.CalendarYear;
     """
-    data = pd.read_sql(query, engine)
-    data['Years'] = data['Years'].astype(str)
-    line_chart = alt.Chart(data).mark_line().encode(
+    data_aw = pd.read_sql(query, engine)
+    data_aw['Years'] = data_aw['Years'].astype(str)
+    line_chart = alt.Chart(data_aw).mark_line().encode(
         x='Years',
         y='Order Count',
         tooltip=['Years', 'Order Count']
@@ -196,9 +198,9 @@ if db_choice == "Database AW":
         t.CalendarYear, 
         SUM(sf.SalesAmount) AS TotalRevenue
     FROM  
-        dw_aw.factinternetsales sf
+        factinternetsales sf
     JOIN 
-        dw_aw.dimtime t ON sf.OrderDateKey = t.TimeKey
+        dimtime t ON sf.OrderDateKey = t.TimeKey
     GROUP BY 
         t.CalendarYear
     ORDER BY 
