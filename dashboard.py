@@ -2,8 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import altair as alt
-import seaborn as sns
-import matplotlib.pyplot as plt
 from collections import defaultdict
 from sqlalchemy import create_engine
 from urllib.parse import quote_plus
