@@ -63,7 +63,6 @@ if db_choice == "Database AW":
     # SECTION SALES DAN ORDER
     st.header('Sales and Order')
     # Pesanan Antar Wilayah dari Waktu ke Waktu (line chart)
-    # SQL query to retrieve sales data over time by region
     query = """
     SELECT 
         t.CalendarYear AS Years,
@@ -277,7 +276,7 @@ if db_choice == "Database AW":
     )
     st.plotly_chart(fig)
 
-    # total revenue by customer segment
+    # pendapatan berdasarkan customer segment
     query = """
     SELECT 
         t.CalendarYear,
@@ -296,10 +295,10 @@ if db_choice == "Database AW":
     """
     data_aw = pd.read_sql(query, engine)
     chart = alt.Chart(data_aw).mark_line().encode(
-        x='CalendarYear:O',  # Menentukan sumbu X sebagai CalendarYear dengan tipe data ordinal
-        y='TotalSales:Q',  # Menentukan sumbu Y sebagai TotalSales dengan tipe data kuantitatif
-        color='CustomerSegment:N',  # Menentukan warna garis berdasarkan CustomerSegment
-        tooltip=['CalendarYear:O', 'CustomerSegment:N', 'TotalSales:Q'],  # Menambahkan tooltip
+        x='CalendarYear:O', 
+        y='TotalSales:Q', 
+        color='CustomerSegment:N', 
+        tooltip=['CalendarYear:O', 'CustomerSegment:N', 'TotalSales:Q'],  
     ).properties(
         title='Comparison of Sales Performance Across Customer Segments Over Time',
         width=800,
@@ -372,7 +371,7 @@ elif db_choice == "Database Scraping IMDb":
 
     data_imdb = pd.read_csv('imdb_mostpopular_clean.csv')
     
-    # Comparison of Budget, Gross_US and Gross_World by Open_Week_Date 
+    # perbandingan Budget, Gross_US and Gross_World berdasarkan Open_Week_Date 
     data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
     data_imdb = data_imdb.sort_values('Open_Week_Date')
     st.subheader('Comparison of Gross US and Gross World over Time')
@@ -389,7 +388,7 @@ elif db_choice == "Database Scraping IMDb":
     ).interactive()
     st.altair_chart(chart_gross, use_container_width=True)
 
-    # Relationship between Budget and Gross World
+    # hubungan Budget dan Gross World
     st.subheader('Relationship between Budget and Gross World')
     scatter_plot = alt.Chart(data_imdb).mark_circle().encode(
         x='Budget',
@@ -401,7 +400,7 @@ elif db_choice == "Database Scraping IMDb":
     )
     st.altair_chart(scatter_plot)
 
-    # Distribution opening week gross by opening date
+    # distribusi opening week gross berdasarkan opening date
     st.subheader("Distribution of Opening Week Gross by Open Week Date")
     data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
     data_imdb = data_imdb.sort_values('Open_Week_Date')
@@ -414,14 +413,13 @@ elif db_choice == "Database Scraping IMDb":
     fig = px.pie(aspect_ratio_counts, values='Count', names='Aspect Ratio')
     st.plotly_chart(fig)
 
-    # DISTRIBUTION
-    # Distribution most popular IMDB movie by runtime
+    # distribusi runtime film populer
     st.subheader('Distribution of IMDb\'s Most Popular Movie Runtime')
     fig = px.histogram(data_imdb, x='Runtime', nbins=20)
     fig.update_layout(xaxis_title='Runtime (Minutes)', yaxis_title='Frequency')
     st.plotly_chart(fig)
 
-    # Comparison sound mix
+    # perbandingan jumlah sound
     def count_sound_mix(data):
         sound_mix_counts = defaultdict(int)
         for sound_mix_str in data['Sound_Mix']:
