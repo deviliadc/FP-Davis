@@ -402,7 +402,7 @@ elif db_choice == "Database Scraping IMDb":
     st.subheader("Distribution of Opening Week Gross by Open Week Date")
     data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
     data_imdb = data_imdb.sort_values('Open_Week_Date')
-    st.bar_chart(data_imdb.set_index('Open_Week_Date')['Opening_Week'])
+    st.line_chart(data_imdb.set_index('Open_Week_Date')['Opening_Week'])
 
     # Aspect Ratio Composition of Most Popular IMDb Films
     st.subheader('Aspect Ratio Composition of Most Popular IMDb Films')
@@ -414,7 +414,9 @@ elif db_choice == "Database Scraping IMDb":
     # distribusi runtime film populer
     st.subheader('Distribution of IMDb\'s Most Popular Movie Runtime')
     fig = px.histogram(data_imdb, x='Runtime', nbins=20)
-    fig.update_layout(xaxis_title='Runtime (Minutes)', yaxis_title='Frequency')
+    fig.update_layout(
+        xaxis_title='Runtime (Minutes)', 
+        yaxis_title='Frequency')
     st.plotly_chart(fig)
 
     # perbandingan jumlah sound
