@@ -95,6 +95,9 @@ if db_choice == "Database AW":
         # anchor='middle'
     )
     st.altair_chart(chart, use_container_width=True)
+    st.write('Berdasarkan visualisai diatas dapat dilihat perbandingan jumlah pemesanan dari tiap-tiap negara. ' 
+            'Hasil visualisasi menunjukkan negara dengan total pesanan tertinggi ada pada United States dengan jumlah 11631 '
+            'dan negara dengan total pesanan terendah ada pada France dengan jumlah 2975.')
 
     # Tren jumlah penjualan tiap tahun
     query = """
@@ -125,6 +128,10 @@ if db_choice == "Database AW":
         # anchor='middle'
     )
     st.altair_chart(line_chart, use_container_width=True)
+    st.write('Berdasarkan visualisasi diatas dapat dilihat trend jumlah penjualan tiap tahun. '
+            'Tren tersebut menunjukkan perubahan secara positif, dimana tiap tahun jumlah pesanan semakin bertambah. '
+            'Pada tahun 2001 jumlah pesanan sebanyak 1013 pesanan, tahun 2002 sebanyak 2677 pesanan, tahun 2003 sebanyak 24443 pesanan, '
+            'dan pada tahun 2004 sebanyak 32265 pesanan')
 
     # Perbandingan pendapatan berdasarkan kategori barang
     query = """
@@ -160,6 +167,8 @@ if db_choice == "Database AW":
         # anchor='middle'
     )
     st.altair_chart(bar_chart, use_container_width=True)
+    st.write('Dari hasil visualisasi tersebut dapat dilihat bahwa pendapatan paling banyak berasal dari '
+            'kategori produk sepeda, lalu aksesoris, dan yang terakhir pakaian.')
 
     # Perbandingan pendapatan di seluruh wilayah
     query = """
@@ -190,6 +199,10 @@ if db_choice == "Database AW":
         title_font_size=20
     )
     st.plotly_chart(fig)
+    st.write('Visualisasi tersebut menunjukkan hasil pendapatan berdasarkan wilayah penjualan. Dimana '
+            'dapat diketahui bahwa pendapatan yang tinggi ditandai dengan warna kuning terang dan pendapatan rendah dengan warna ungu gelap. '
+            'Pada visualisasi ini yang ditandai dengan warna kuning adalah wilayah Australia artinya wilayah tersebut memiliki pendapatan yang tinggi '
+            'dan untuk wilayah dengan warna ungu gelap yang artinya memiliki pendapatan yang rendah yaitu daerah Southwest.')
 
     # Pendapatan Berdasarkan Tahun (bar chart)
     query = """
@@ -207,13 +220,22 @@ if db_choice == "Database AW":
     """
     data_aw = pd.read_sql(query, engine)
     total_sales_by_year = data_aw.groupby('CalendarYear')['TotalRevenue'].sum().reset_index()
+    total_sales_by_year['CalendarYear'] = total_sales_by_year['CalendarYear'].astype(int)
     fig = px.bar(total_sales_by_year, x='CalendarYear', y='TotalRevenue', 
                 labels={'CalendarYear': 'Year', 'TotalRevenue': 'Total Revenue'},
                 title='Distribution of Revenue by Year')
     fig.update_layout(
-        title_x=0.5,  # Mengatur posisi judul secara horizontal di tengah
-        title_font_size=20  # Mengatur ukuran font judul
+        title_font_size=20, 
+        xaxis = dict(
+        tickmode = 'linear',
+        tick0 = total_sales_by_year['CalendarYear'].min(),
+        dtick = 1
+        )
     )
+    st.plotly_chart(fig)
+    st.write('Visualisasi tersebut menunjukkan distribusi pendapatan berdasarkan tahun, dimana dapat dilihat bahwa pendapatan '
+            'naik setiap tahunnya. Pada tahun 2001 pendapatan berkisar di 3M, di tahun 2002 pendapatan naik ke 5M dan pada tahun '
+            '2003 dan 2004 pendapatan mencapai 10M.')
 
     # pendapatan berdasarkan promosi
     query = """
@@ -245,6 +267,9 @@ if db_choice == "Database AW":
         # anchor='middle'
     )
     st.altair_chart(bar_chart, use_container_width=True)
+    st.write('Visualisasi tersebut menunjukkan pendapatan perusahaan berdasarkan promosi. Dapat dilihat bahwa pendapatan paling banyak didapatkan '
+            'dengan tidak melakukan promosi. Jadi meskipun perusahaan tidak melakukan promosi pendapatan tetap akan masuk. Dan hal ini juga membuktikan '
+            'bahwa promosi tidak terlalu mempengaruhi hasil pendapatan perusahaan.')
 
     # SECTION CUSTOMER
     st.header('Customer')
@@ -273,6 +298,8 @@ if db_choice == "Database AW":
         title_font_size=20
     )
     st.plotly_chart(fig)
+    st.write('Visualisasi tersebut menunjukkan distribusi pelanggan. Jumlah pelanggan paling banyak terdapat di wilayah United States, '
+            'selanjutnya Australia, United Kingdom, France, Germany dan terakhir Canada.')
 
     # pendapatan berdasarkan customer segment
     query = """
@@ -306,6 +333,8 @@ if db_choice == "Database AW":
         # anchor='middle'
     )
     st.altair_chart(chart, use_container_width=True)
+    st.write('Grafik tersebut menunjukkan perbandingan kinerja penjualan di berbagai segmen customer tiap tahun. '
+            'Customer paling banyak di dominasi oleh Bachelors di setiap tahunnya. Dan yang paling rendah dari Partial High School.')
 
     # SECTION PRODUCT
     st.header('Product')
@@ -334,29 +363,9 @@ if db_choice == "Database AW":
     )
     chart = (scatter_plot + average_line)
     st.altair_chart(chart)
-
-    # distribusi harga produk
-    query = """
-    SELECT 
-        p.EnglishProductName AS ProductName,
-        p.ListPrice
-    FROM 
-        dimproduct p
-    """
-    data_aw = pd.read_sql(query, engine)
-    histogram = alt.Chart(data_aw).mark_bar().encode(
-        alt.X('ListPrice:Q', bin=alt.Bin(maxbins=30), title='List Price'),
-        alt.Y('count():Q', title='Count'),
-        tooltip=['ListPrice:Q', 'count():Q']
-    ).properties(
-        width=700,
-        height=400,
-        title='Distribution of Product Prices'
-    ).configure_title(
-        fontSize=20,
-        # anchor='middle'
-    )
-    st.altair_chart(histogram, use_container_width=True)
+    st.write('Pada hasil visualisasi tersebut dapat dilihat hubungan antara Standart Cost (harga bahan baku) dan List Price (harga jual). '
+            'Garis putus-putus merah pada visualisasi tersebut menunjukkan rata-rata List Price dikurangi Standard Cost. Dapat dilihat bahwa '
+            'masih banyak harga jual yang dibawah rata-rata tersebut, namun tidak sedikit juga harga jual yang lebih tinggi dari rata-rata tersebut.')
 
 
 # DATABASE IMDB
@@ -385,24 +394,39 @@ elif db_choice == "Database Scraping IMDb":
         height=400
     ).interactive()
     st.altair_chart(chart_gross, use_container_width=True)
+    st.write('Dari visualisasi tersebut. dapat dilihat perbandingan antara Budget, Gross US dam Gross World. Dimana hasil menunjukkan bahwa '
+            'tiap tahun pendapatan dan budget selalu mengalami kenaikan dan dapat dilihat pula bahwa banyak sekali pendapatan yang diatas budget.')
 
     # hubungan Budget dan Gross World
-    st.subheader('Relationship between Budget and Gross World')
+    st.subheader('Margin between Budget and Gross World')
+    data_imdb['Margin'] = data_imdb['Gross_World'] - data_imdb['Budget']
+    average_margin = data_imdb['Margin'].mean()
     scatter_plot = alt.Chart(data_imdb).mark_circle().encode(
-        x='Budget',
-        y='Gross_World',
-        tooltip=['Budget', 'Gross_World']
+        x='Gross_World',
+        y='Margin',
+        tooltip=['Gross_World', 'Budget', 'Margin']
     ).properties(
-        width=680,
-        height=560
+        width=700,
+        height=400
+    ).interactive()
+    average_line = alt.Chart(pd.DataFrame({'average_margin': [average_margin]})).mark_rule(color='red', strokeDash=[3, 3]).encode(
+        y=alt.Y('average_margin:Q', title='Average Margin')
     )
-    st.altair_chart(scatter_plot)
+    chart = (scatter_plot + average_line)
+    st.altair_chart(chart)
+    st.write('Pada hasil visualisasi tersebut dapat dilihat hubungan antara anggaran (budget) dan pendapatan kotor (gross income) secara global. '
+            'Garis putus-putus merah pada visualisasi tersebut menunjukkan rata-rata pendapatan dikurangi budget. '
+            'Hasilnya menunjukkan bahwa, banyak sekali film-film yang pendapatannya dibawah rata-rata tersebut, bahkan ada film yang budgetnya tinggi, namun ternyata'
+            'pendapatannya minus. Namun disisi lain ada juga film yang pendapatannya jauh melampaui rata-rata.')
 
     # distribusi opening week gross berdasarkan opening date
     st.subheader("Distribution of Opening Week Gross by Open Week Date")
     data_imdb['Open_Week_Date'] = pd.to_datetime(data_imdb['Open_Week_Date'])
     data_imdb = data_imdb.sort_values('Open_Week_Date')
     st.line_chart(data_imdb.set_index('Open_Week_Date')['Opening_Week'])
+    st.write('Pada visualisasi tersebut dapat dilihat distribusi laba kotor minggu pembukaan berdasarkan tanggal pembukaan. '
+            'Dapat terlihat fluktuasi naik turun dari visualisasi tersebut, namun dapat terlihat bahwa semakin hari, '
+            'laba kotor semakin naik walaupun ada penurunan sekitar tahun 2015 sampai dengan 2020')
 
     # Aspect Ratio Composition of Most Popular IMDb Films
     st.subheader('Aspect Ratio Composition of Most Popular IMDb Films')
@@ -410,6 +434,9 @@ elif db_choice == "Database Scraping IMDb":
     aspect_ratio_counts.columns = ['Aspect Ratio', 'Count']
     fig = px.pie(aspect_ratio_counts, values='Count', names='Aspect Ratio')
     st.plotly_chart(fig)
+    st.write('Visualisasi diatas menunjukkan komposisi Aspect Ratio yang sering digunakan dalam film yang ada di list most popular imdb. '
+            'Dapat dilihat bahwa Aspect Ratio yang paling banyak digunakan yaitu 2.39:1 dengan total presentase 64.6%, '
+            'selanjutnya Aspect Ratio 1.85:1 dengan presentase 22.9%, dan untuk Aspect Ratio lainnya memiliki jumlah persentase yang sama yaitu 2.08%.')
 
     # distribusi runtime film populer
     st.subheader('Distribution of IMDb\'s Most Popular Movie Runtime')
@@ -418,6 +445,8 @@ elif db_choice == "Database Scraping IMDb":
         xaxis_title='Runtime (Minutes)', 
         yaxis_title='Frequency')
     st.plotly_chart(fig)
+    st.write('Dari visualisasi diatas dapat diketahui bahwa pada data film terpopuler IMDB, runtime yang memiliki jumlah film terbanyak yaitu pada 115-119 menit dengan total 7 film, '
+            'yang kedua yaitu pada runtime 120-124 menit sebanyak 6 film, ketiga pada runtime 110-114 menit dengan total 5 film, pada runtime 130-134 menit dengan total 4 film, dan runtime lainnya antara 1-3 film')
 
     # perbandingan jumlah sound
     def count_sound_mix(data):
@@ -431,6 +460,8 @@ elif db_choice == "Database Scraping IMDb":
     sound_mix_counts = count_sound_mix(data_imdb)
     st.subheader('Number of Films Based on Sound Mix Type')
     st.bar_chart(pd.Series(sound_mix_counts))
+    st.write('Pada visualisasi tersebut, dapat dilihat tipe sound yang paling sering digunakan oleh film populer IMDB. Peringkat pertama diduduki oleh Dolby Digital yaitu 36 film, lalu Dolby Atmos yaitu 33 film, '
+            'IMAX6-Track yaitu 16 film, Dolby Surround 7.1yaitu 15 film dan untuk sound lainnya diantara 1-11 film yang menggunakan sound tersebut.')
 
 
 st.caption('© Devilia Dwi Candra - 21082010098')
