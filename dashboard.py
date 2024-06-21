@@ -1,26 +1,55 @@
+import os
+import mysql.connector
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import altair as alt
 import toml
 from collections import defaultdict
-from sqlalchemy import create_engine
-from urllib.parse import quote_plus
+# from sqlalchemy import create_engine
+# from urllib.parse import quote_plus
 
-# Membaca file config.toml
-config = toml.load('config.toml')
+# # Membaca file config.toml
+# config = toml.load('secrets.toml')
 
-# Mendapatkan informasi koneksi dari file
-db_username = config['database']['username']
-db_password = config['database']['password']
-db_host = config['database']['host']
-db_name = config['database']['name']
+# # Mendapatkan informasi koneksi dari file
+# db_username = config['database']['username']
+# db_password = config['database']['password']
+# db_host = config['database']['host']
+# db_name = config['database']['name']
 
-encoded_password = quote_plus(db_password)
+# encoded_password = quote_plus(db_password)
 
-# Membuat URL koneksi menggunakan SQLAlchemy
-connection_string = f'mysql+mysqlconnector://{db_username}:{encoded_password}@{db_host}/{db_name}'
-engine = create_engine(connection_string)
+# # Membuat URL koneksi menggunakan SQLAlchemy
+# connection_string = f'mysql+mysqlconnector://{db_username}:{encoded_password}@{db_host}/{db_name}'
+# engine = create_engine(connection_string)
+
+def create_connection():
+    try:
+        secrets_path = os.path.join(os.path.dirname(__file__), 'secrets.toml')
+        secrets = toml.load(secrets_path)
+        db_username = secrets['database']['username']
+        db_password = secrets['database']['password']
+        db_host = secrets['database']['host']
+        db_name = secrets['database']['name']
+        return mysql.connector.connect(
+            user=db_username,
+            password=db_password,
+            host=db_host,
+            database=db_name
+        )
+    except KeyError as e:
+        st.error(f"Kunci yang diperlukan tidak ditemukan di secrets.toml: {e}")
+        raise
+    except Exception as e:
+        st.error(f"Terjadi kesalahan saat membuat koneksi ke database: {e}")
+        raise
+
+# Membuat koneksi ke database MySQL
+conn = create_connection()
+
+def run_query(query, conn):
+    return pd.read_sql(query, conn)
 
 # Sidebar
 with st.sidebar:
@@ -57,7 +86,7 @@ if db_choice == "Database AW":
     ORDER BY 
         t.CalendarYear, TotalOrder DESC;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     data_aw['Years'] = data_aw['Years'].astype(str)
     chart = alt.Chart(data_aw).mark_line(point=True).encode(
         x='Years:O',
@@ -91,7 +120,7 @@ if db_choice == "Database AW":
     ORDER BY 
         t.CalendarYear;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     data_aw['Years'] = data_aw['Years'].astype(str)
     line_chart = alt.Chart(data_aw).mark_line().encode(
         x='Years',
@@ -129,7 +158,7 @@ if db_choice == "Database AW":
     ORDER BY 
         TotalSales DESC;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     bar_chart = alt.Chart(data_aw).mark_bar().encode(
         x=alt.X('ProductCategory', sort='-y', title='Product Category'),
         y=alt.Y('TotalSales', title='Total Sales Amount'),
@@ -163,7 +192,7 @@ if db_choice == "Database AW":
     ORDER BY 
         TotalSales DESC;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     fig = px.choropleth(
         data_aw,
         locations="Country",
@@ -196,7 +225,7 @@ if db_choice == "Database AW":
     ORDER BY 
         t.CalendarYear;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     total_sales_by_year = data_aw.groupby('CalendarYear')['TotalRevenue'].sum().reset_index()
     total_sales_by_year['CalendarYear'] = total_sales_by_year['CalendarYear'].astype(int)
     fig = px.bar(total_sales_by_year, x='CalendarYear', y='TotalRevenue', 
@@ -229,7 +258,7 @@ if db_choice == "Database AW":
     ORDER BY 
         TotalSales DESC;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     bar_chart = alt.Chart(data_aw).mark_bar(color='skyblue').encode(
         x=alt.X('PromotionName', sort='-y', title='Promotion'),
         y=alt.Y('TotalSales', title='Total Sales'),
@@ -265,7 +294,7 @@ if db_choice == "Database AW":
     ORDER BY 
         CustomerCount DESC;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     data_aw['label'] = data_aw['Country'] + '<br>' + '(' + data_aw['CustomerCount'].astype(str) + ' customers)'
     fig = px.treemap(data_aw, 
                     path=['label'], 
@@ -296,7 +325,7 @@ if db_choice == "Database AW":
     ORDER BY 
         t.CalendarYear, TotalSales DESC;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     chart = alt.Chart(data_aw).mark_line().encode(
         x='CalendarYear:O', 
         y='TotalSales:Q', 
@@ -324,7 +353,7 @@ if db_choice == "Database AW":
     FROM 
         dimproduct;
     """
-    data_aw = pd.read_sql(query, engine)
+    data_aw = pd.read_sql(query, conn)
     data_aw['Margin'] = data_aw['ListPrice'] - data_aw['StandardCost']
     average_margin = data_aw['Margin'].mean()
     scatter_plot = alt.Chart(data_aw).mark_circle().encode(
