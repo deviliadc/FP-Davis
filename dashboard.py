@@ -2,43 +2,21 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import altair as alt
+import toml
 from collections import defaultdict
 from sqlalchemy import create_engine
 from urllib.parse import quote_plus
 
-# def create_connection():
-#     connection = mysql.connector.connect(
-#         host='kubela.id',
-#         port=3306,
-#         user='davis2024irwan',
-#         password='wh451n9m@ch1n3',
-#         database='aw'
-#     )
-#     return connection
+# Membaca file config.toml
+config = toml.load('config.toml')
 
-# Konfigurasi koneksi untuk SQLAlchemy
-db_username = 'davis2024irwan'
-db_password = 'wh451n9m@ch1n3'
-db_host = 'kubela.id'
-db_name = 'aw'
+# Mendapatkan informasi koneksi dari file
+db_username = config['database']['username']
+db_password = config['database']['password']
+db_host = config['database']['host']
+db_name = config['database']['name']
 
 encoded_password = quote_plus(db_password)
-
-# def create_connection():
-#     connection = mysql.connector.connect(
-#         host='localhost',  # Ubah ke 'localhost'
-#         port=3306,  # Tetap port 3306
-#         user='root',  # Sesuaikan dengan user lokal Anda
-#         password='',  # Sesuaikan dengan password lokal Anda
-#         database='dw_aw'  # Nama database lokal Anda
-#     )
-#     return connection
-
-# Konfigurasi koneksi untuk SQLAlchemy
-# db_username = 'root'
-# db_password = ''
-# db_host = 'localhost'
-# db_name = 'dw_aw'
 
 # Membuat URL koneksi menggunakan SQLAlchemy
 connection_string = f'mysql+mysqlconnector://{db_username}:{encoded_password}@{db_host}/{db_name}'
