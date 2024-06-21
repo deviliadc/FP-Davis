@@ -24,32 +24,32 @@ from collections import defaultdict
 # connection_string = f'mysql+mysqlconnector://{db_username}:{encoded_password}@{db_host}/{db_name}'
 # engine = create_engine(connection_string)
 
-def create_connection():
-    try:
-        secrets_path = os.path.join(os.path.dirname(__file__), 'secrets.toml')
-        secrets = toml.load(secrets_path)
-        db_username = secrets['database']['username']
-        db_password = secrets['database']['password']
-        db_host = secrets['database']['host']
-        db_name = secrets['database']['name']
-        return mysql.connector.connect(
-            user=db_username,
-            password=db_password,
-            host=db_host,
-            database=db_name
-        )
-    except KeyError as e:
-        st.error(f"Kunci yang diperlukan tidak ditemukan di secrets.toml: {e}")
-        raise
-    except Exception as e:
-        st.error(f"Terjadi kesalahan saat membuat koneksi ke database: {e}")
-        raise
+# def create_connection():
+#     try:
+#         secrets_path = os.path.join(os.path.dirname(__file__), 'secrets.toml')
+#         secrets = toml.load(secrets_path)
+#         db_username = secrets['database']['username']
+#         db_password = secrets['database']['password']
+#         db_host = secrets['database']['host']
+#         db_name = secrets['database']['name']
+#         return mysql.connector.connect(
+#             user=db_username,
+#             password=db_password,
+#             host=db_host,
+#             database=db_name
+#         )
+#     except KeyError as e:
+#         st.error(f"Kunci yang diperlukan tidak ditemukan di secrets.toml: {e}")
+#         raise
+#     except Exception as e:
+#         st.error(f"Terjadi kesalahan saat membuat koneksi ke database: {e}")
+#         raise
 
-# Membuat koneksi ke database MySQL
-conn = create_connection()
+# # Membuat koneksi ke database MySQL
+# conn = create_connection()
 
-def run_query(query, conn):
-    return pd.read_sql(query, conn)
+# def run_query(query, conn):
+#     return pd.read_sql(query, conn)
 
 # Sidebar
 with st.sidebar:
@@ -64,6 +64,33 @@ if db_choice == "Database AW":
             <img src="{"https://dcassetcdn.com/design_img/2623047/545341/545341_14124078_2623047_9f9971b7_image.png"}" width="200">
         </div>
     """, unsafe_allow_html=True)
+
+    def create_connection():
+        try:
+            secrets_path = os.path.join(os.path.dirname(__file__), 'secrets.toml')
+            secrets = toml.load(secrets_path)
+            db_username = secrets['database']['username']
+            db_password = secrets['database']['password']
+            db_host = secrets['database']['host']
+            db_name = secrets['database']['name']
+            return mysql.connector.connect(
+                user=db_username,
+                password=db_password,
+                host=db_host,
+                database=db_name
+            )
+        except KeyError as e:
+            st.error(f"Kunci yang diperlukan tidak ditemukan di secrets.toml: {e}")
+            raise
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat membuat koneksi ke database: {e}")
+            raise
+
+    # Membuat koneksi ke database MySQL
+    conn = create_connection()
+
+    def run_query(query, conn):
+        return pd.read_sql(query, conn)
     
     # SECTION SALES DAN ORDER
     st.header('Sales and Order')
